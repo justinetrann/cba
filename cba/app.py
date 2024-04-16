@@ -24,10 +24,20 @@ def get_data_sales():
     sql_query = "SELECT * FROM Sales WHERE transaction_date BETWEEN %s AND %s"
     data = execute_query(sql_query, (start_date, end_date))
 
-    if data:
-        return jsonify(data)
-    else:
+    if not data:
         return jsonify({'error': 'No data found'})
+
+    # Converting data to different formats
+    pandas_df = pd.DataFrame(data)
+
+    # Responding with multiple formats
+    respond = {
+        'JSON Dictionary': data,
+        'list': [list(item.values()) for item in data],
+        'Pandas Data Frame': pandas_df.to_json(orient='records')
+    }
+
+    return jsonify(respond)
 
 
 if __name__ == '__main__':
