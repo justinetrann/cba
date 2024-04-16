@@ -5,7 +5,7 @@ from mysql.connector import Error
 # Connects to MySQL db 'Store_Data' executes query and returns result
 # Parameters: query (str): The SQL query to execute
 # Returns: dict list containing results, http://127.0.0.1:5000/data
-def execute_query(query):
+def execute_query(query, params=None):
     # connecting to local db Store_Data Function
     connection = None
     cursor = None
@@ -24,7 +24,7 @@ def execute_query(query):
         cursor = connection.cursor(dictionary=True)
 
         # Execute the query and fetch all results
-        cursor.execute(query)
+        cursor.execute(query, params)
         result = cursor.fetchall()
         return result
 
