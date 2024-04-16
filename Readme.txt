@@ -1,3 +1,4 @@
-__Development Overview of Store_Data Database__
+**Development Overview of Store_Data Database**
+
 This document outlines the steps taken to develop the Store_Data database, detailing the creation of the database, table structures, and the data import process utilized in MySQL Workbench.
 
