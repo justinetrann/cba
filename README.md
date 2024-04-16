@@ -89,7 +89,7 @@ from db_connection import execute_query
 app = Flask(__name__)
 
 
-@app.route('/')
+@app.route('/getData')
 def get_data_sales():
     sql_query = "SELECT * FROM Sales"
     data = execute_query(sql_query)
@@ -103,13 +103,13 @@ if __name__ == '__main__':
     app.run()
 ```
 
-Snippt Result from http://127.0.0.1:5000/
+Snippt Result from http://127.0.0.1:5000/getData
 
 [{"id":1,"store_code":"TX001","total_sales":"937.70","transaction_date":"Sun, 12 Feb 2023 00:00:00 GMT"},{"id":2,"store_code":"TX001","total_sales":"1117.77","transaction_date":"Sat, 25 Mar 2023 00:00:00 GMT"},{"id":3,"store_code":"TX001","total_sales":"365.68","transaction_date":"Mon, 06 Feb 2023 00:00:00 GMT"},{"id":4,"store_code":"TX001","total_sales":"199.44","transaction_date":"Mon, 20 Feb 2023 00:00:00 GMT"},{"id":5,"store_code":"TX001","total_sales":"530.48","transaction_date":"Sat, 04 Mar 2023 00:00:00 GMT"},{"id":6,"store_code":"TX001","total_sales":"396.33","transaction_date":"Fri, 03 Mar 2023 00:00:00 GMT"},...
 
 **Development of GET endpoint**
 
-The following code is a GET endpoint that creates an instance of the Flask class. This instance becomes the WSGI application, accessible at [http://127.0.0.1:5000/](http://127.0.0.1:5000/). 
+The following code is a GET endpoint that creates an instance of the Flask class. This instance becomes the WSGI application, accessible at [http://127.0.0.1:5000/getData](http://127.0.0.1:5000/). 
 Here, the parameters are passed through the URL, which is common for HTTP GET requests. Using the locally default URL, we pass the query parameters by using the symbol '?'. 
 The part that follows this symbol contains the query parameters we defined within our GET endpoint: `start_date = request.args.get('start_date')` and `end_date = request.args.get('end_date')`. By using `request.args.get`, we extract the values from the query string.
 
@@ -117,7 +117,7 @@ The part that follows this symbol contains the query parameters we defined withi
 *   `&` separates multiple query parameters.
 *   `=` links the key and the value in each parameter pair.
 
-Example: [http://127.0.0.1:5000/?start\_date=2023-02-12&end\_date=2023-03-24](http://127.0.0.1:5000/?start_date=2023-02-12&end_date=2023-03-24)
+Example: [http://127.0.0.1:5000/getData?start\_date=2023-02-12&end\_date=2023-03-24](http://127.0.0.1:5000/?start_date=2023-02-12&end_date=2023-03-24)
 
 ```py
 from flask import Flask, jsonify, request
@@ -126,7 +126,7 @@ from dbconnection import executequery
 app = Flask(__name)
 
 
-@app.route('/')
+@app.route('/getData')
 def get_data_sales():
     # Retrieve the data from a range of dates
     start_date = request.args.get('start_date')
@@ -153,3 +153,38 @@ if __name == '__main':
 Note that the GET request executes the 'get\_data\_sales' function, where the function connects to MySQL through another function, `execute_query`, fetching data from a table and returning
 it as the requested outputs in the required form.
 
+**GET endpoint output: JSON Dictionary, List, and Pandas Data Frame**
+
+We will enhance the above code to print the required outputs—JSON Dictionary, List, and Pandas DataFrame—based on the modifications made. The URL provided by the Flask application will reflect these data transformations.
+
+Since the current implementation integrates all changes on a single page, it appears somewhat cluttered. To improve code clarity and maintainability, a future modification could introduce the &format parameter in the URL. This addition would allow users to specify their preferred output format, making the application more flexible and user-friendly.
+
+```py
+def get_data_sales():
+    # Retrieve the data from a range of dates
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+
+    # Checks if both dates are accessible
+    if not start_date or not end_date:
+        return jsonify({'error': 'start_date and end_date must be provided'}), 400
+
+    # SQL query for selected dates within a given range
+    sql_query = "SELECT * FROM Sales WHERE transaction_date BETWEEN %s AND %s"
+    data = execute_query(sql_query, (start_date, end_date))
+
+    if not data:
+        return jsonify({'error': 'No data found'})
+
+    # Converting data to different formats
+    pandas_df = pd.DataFrame(data)
+
+    # Responding with multiple formats
+    respond = {
+        'JSON Dictionary': data,
+        'list': [list(item.values()) for item in data],
+        'Pandas Data Frame': pandas_df.to_json(orient='records')
+    }
+
+    return jsonify(respond)
+```
