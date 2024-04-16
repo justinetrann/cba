@@ -5,7 +5,7 @@ from db_connection import execute_query
 app = Flask(__name__)
 
 
-@app.route('/')
+@app.route('/getData')
 # Outputs data based on inputted data range: start_date & end_date
 # Sample Dataset is outputted in three ways:
 # (1) JSON Dictionary
