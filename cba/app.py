@@ -8,8 +8,8 @@ app = Flask(__name__)
 @app.route('/getData')
 # Outputs data based on inputted data range: start_date & end_date
 # Sample Dataset is outputted in three ways:
-# (1) JSON Dictionary
-# (2) List (Jsonify)
+# (1) JSON Dictionary (Jsonify)
+# (2) List (List)
 # (3) Pandas Data Frame (pd)
 def get_data_sales():
     # Retrieve the data from a range of dates
