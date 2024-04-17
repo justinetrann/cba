@@ -124,9 +124,14 @@ GET http://127.0.0.1:5000/sales?start_date=2023-02-12&end_date=2023-02-12
 Accept: application/json
 ```
 
+The following code outputs the data retrieved from the query as a JSON dictionary, list, and Pandas DataFrame, as required.
+```py
+pandas_df = pd.DataFrame(data)
+respond = {
+    'JSON Dictionary': data,
+    'list': [list(item.values()) for item in data],
+    'Pandas Data Frame': pandas_df.to_json(orient='records')
+}
+```
 
-**GET endpoint output: JSON Dictionary, List, and Pandas Data Frame**
 
-We will enhance the above code to print the required outputs—JSON Dictionary, List, and Pandas DataFrame—based on the modifications made. The URL provided by the Flask application will reflect these data transformations.
-
-Since the current implementation integrates all changes on a single page, it appears somewhat cluttered. To improve code clarity and maintainability, a future modification could introduce the &format parameter in the URL. This addition would allow users to specify their preferred output format, making the application more flexible and user-friendly.
