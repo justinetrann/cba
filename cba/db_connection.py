@@ -23,14 +23,20 @@ def execute_query(query, params=None):
         # Creating cursor to execute the query
         cursor = connection.cursor(dictionary=True)
 
-        # Execute the query and fetch all results
+        # Checks if query is an INSERT operation
         cursor.execute(query, params)
-        result = cursor.fetchall()
-        return result
+        if query.strip().upper().startswith('INSERT'):
+            connection.commit()
+            return {'success': True, 'message': 'Data was successfully written in'}
+        elif query.strip().upper().startswith('SELECT'):  # Execute the query and fetch all results
+            result = cursor.fetchall()
+            return result
+        else:
+            return {'success': False, 'message': 'Query type not supported'}
 
     except Error as e:
         print(f"Error: {e}")
-        return None
+        return {'success': False, 'message': str(e)}
     finally:
         # Ensure the cursor and connection are closed properly
         if cursor is not None:

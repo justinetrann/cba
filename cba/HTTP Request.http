@@ -1,0 +1,10 @@
+POST http://127.0.0.1:5000/sales
+Content-Type: application/json
+
+{
+  "id": 1001,
+  "store_id": "TX001",
+  "total_sales": 530.48,
+  "date": "2023-02-01"
+}
+###
