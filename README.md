@@ -152,4 +152,15 @@ Content-Type: application/json
 
 Within the `sales()` function, when the requested method is POST and an insertion is requested, the function retrieves and checks the data types. It then uses the SQL query `INSERT INTO Sales (id, store_code, total_sales, transaction_date) VALUES (%s, %s, %s, %s)` to insert data into the database with the acceptable parameters: `id` (integer), `store ID` (string), `Total_sales` (decimal(10,2)), and `Date` (date). In the services console, you will receive a response message indicating a successful write, and it will display the new row that has been written into the database.
 
+# Error handling
 
+**Overload**
+
+If you receive the following message from the service console while using the POST method, it may indicate that your service is experiencing issues:
+```
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<title>500 Internal Server Error</title>
+<h1>Internal Server Error</h1>
+<p>The server encountered an internal error and was unable to complete your request.  Either the server is overloaded or there is an error in the application.</p>
+```
+This message suggests that port 5000 may be overloaded. In this case, restarting your computer should resolve the error.
