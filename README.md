@@ -134,4 +134,22 @@ respond = {
 }
 ```
 
+**Development of POST**
+
+Using the `.http` file, we can add a new row to the dataset in a MySQL database. Below is an example of an insertion:
+```http
+POST http://127.0.0.1:5000/sales
+Content-Type: application/json
+
+{
+  "id": 1001,
+  "store_code": "TX001",
+  "total_sales": 530.48,
+  "transaction_date": "2023-02-01"
+}
+###
+```
+
+Within the `sales()` function, when the requested method is POST and an insertion is requested, the function retrieves and checks the data types. It then uses the SQL query `INSERT INTO Sales (id, store_code, total_sales, transaction_date) VALUES (%s, %s, %s, %s)` to insert data into the database with the acceptable parameters: `id` (integer), `store ID` (string), `Total_sales` (decimal(10,2)), and `Date` (date). In the services console, you will receive a response message indicating a successful write, and it will display the new row that has been written into the database.
+
 
