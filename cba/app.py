@@ -52,7 +52,17 @@ def sales():
             response = execute_query(sql_insert_query, (id_sales, store_id, total_sales, date))
 
             if response.get('success', False):
-                return jsonify({'success': True, 'message': 'Data processed successfully'}), 200
+                sql_select_query = "SELECT * FROM Sales WHERE id = %s"
+                select_response = execute_query(sql_select_query, (id_sales,))
+
+                if select_response:
+                    return jsonify({
+                        'success': True,
+                        'message': 'Data inserted and verified successfully',
+                        'id': id_sales
+                    }), 200
+                else:
+                    return jsonify({'success': False, 'message': 'Data was inserted but could not be verified'}), 500
             else:
                 return jsonify({'success': False, 'message': 'Failed to insert data into database'}), 500
 
