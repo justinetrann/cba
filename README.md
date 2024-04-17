@@ -1,6 +1,6 @@
 # Development Overview of Store_Data Database
 
-This document outlines the steps taken to develop the Store_Data database, detailing the creation of the database, table structures, and the data import process utilized in MySQL Workbench 8.0 CE.
+This section outlines the steps taken to develop the Store_Data database, detailing the creation of the database, table structures, and the data import process utilized in MySQL Workbench 8.0 CE.
 
 **Creation of Database (Schema) and Tables**
 
@@ -21,10 +21,10 @@ CREATE TABLE Sales(
 The next step is to convert the strings into their acceptable forms; for example, `total_sales` should be converted to `DECIMAL(10,2)` to apply future mathematical operations.
 
 **Conversion of Data Types**
+
 **Converting total_sales from VARCHAR(15) to DECIMAL(10,2)**
 
-To adjust the settings in MySQL Workbench 8.0 CE for proper casting, you will need to temporarily disable safe mode. Start by setting SQL_SAFE_UPDATES to 0.
-This change allows you to perform the necessary data manipulations without the restrictions of safe mode, remember to re-enable safe mode by setting SQL_SAFE_UPDATES back to 1 to ensure the database's integrity is maintained.
+To temporarily disable safe mode for proper data casting in MySQL Workbench 8.0 CE, you can set the SQL_SAFE_UPDATES variable to 0. This allows you to perform the necessary data manipulations without the restrictions of safe mode. Once you've finished these operations, be sure to re-enable safe mode by setting SQL_SAFE_UPDATES back to 1. This ensures the database's integrity is maintained by preventing unintended data modifications.
 
 ```sql
 -- Creating a temporary column to store numeric values
@@ -45,6 +45,7 @@ ALTER TABLE Sales CHANGE COLUMN temp_total_sales total_sales DECIMAL(10,2);
 The following steps are conceptually similar to those described above.
 
 ```sql
+-- Creating a temporary column to store dates
 ALTER TABLE Sales ADD COLUMN temp_transaction_date DATE;
 
 UPDATE Sales
@@ -57,10 +58,13 @@ ALTER TABLE Sales DROP COLUMN transaction_date;
 ALTER TABLE Sales CHANGE COLUMN temp_transaction_date transaction_date DATE;
 ```
 
-# Development Overview of Python Flask application in PyCharm
-**Connecting a Database to PyCharm: Two Approaches**
+Now that the database has been created and all data types have been set appropriately, we can move forward to creating the Python Flask application in PyCharm. Here, we will create two endpoints: a GET endpoint and a POST endpoint for our CRUD application.
 
-**Approach One:**
+# Development Overview of Python Flask application
+
+This section outlines the process of connecting to the 'Store_Data' database and creating both a GET endpoint and a POST endpoint for our application.
+
+**Connecting a Database to PyCharm**
 
 The database was connected to PyCharm through the IDE's graphical interface. 
 The connection setup involved specifying `localhost` as the host on port `3306` and providing the necessary username and password. 
@@ -68,44 +72,15 @@ The JDBC URL used for the connection was `jdbc:mysql://localhost:3306/Store_Data
 
 Reference: https://www.jetbrains.com/help/pycharm/mysql.html#reference
 
-**Approach Two (aka. the creation of function execute_query):**
+Next, our goal is to create a function that enables you to connect to a MySQL database and retrieve data using an SQL string query passed as a parameter.
 
-The connection is made in `db_connection.py` through the function `execute_query()`. 
-This function not only establishes a connection but also accepts a SQL string query through the cursor script
-and returns a list of dictionaries containing the query results, which can be seen at [http://127.0.0.1:5000/(http://127.0.0.1:5000/). 
-Finally, if a connection is established, the cursor is closed to prevent memory leaks and free up resources.
+**Development of function execute_query:**
 
-References Used:
+The connection to the database is established in `db_connection.py` through the `execute_query(query, params=None)` function. This function not only creates a connection but also accepts an SQL string query as input. It executes the query using a cursor and returns a list of dictionaries containing the results. You can access these results by visiting http://127.0.0.1:5000/sales. The `query` parameter can also accept optional parameters (`params`), which will be discussed later in the section for GET and POST endpoints. Finally, if a connection is established, the cursor is closed to prevent memory leaks and free up resources.
 
-[Python MySQL database connection tutorial](https://pynative.com/python-mysql-database-connection/)
+References: https://pynative.com/python-mysql-database-connection/
 
-[MySQL Connector/Python API documentation](https://dev.mysql.com/doc/connector-python/en/connector-python-api-mysqlcursor-execute.html)
-
-Example: app.py:
-```py
-from flask import Flask, jsonify
-from db_connection import execute_query
-
-app = Flask(__name__)
-
-
-@app.route('/getData')
-def get_data_sales():
-    sql_query = "SELECT * FROM Sales"
-    data = execute_query(sql_query)
-    if data:
-        return jsonify(data)
-    else:
-        return jsonify({'error': 'No data found'})
-
-
-if __name__ == '__main__':
-    app.run()
-```
-
-Snippt Result from http://127.0.0.1:5000/getData
-
-[{"id":1,"store_code":"TX001","total_sales":"937.70","transaction_date":"Sun, 12 Feb 2023 00:00:00 GMT"},{"id":2,"store_code":"TX001","total_sales":"1117.77","transaction_date":"Sat, 25 Mar 2023 00:00:00 GMT"},{"id":3,"store_code":"TX001","total_sales":"365.68","transaction_date":"Mon, 06 Feb 2023 00:00:00 GMT"},{"id":4,"store_code":"TX001","total_sales":"199.44","transaction_date":"Mon, 20 Feb 2023 00:00:00 GMT"},{"id":5,"store_code":"TX001","total_sales":"530.48","transaction_date":"Sat, 04 Mar 2023 00:00:00 GMT"},{"id":6,"store_code":"TX001","total_sales":"396.33","transaction_date":"Fri, 03 Mar 2023 00:00:00 GMT"},...
+In addition to the reference material used to establish the database connection, we incorporated an 'if' statement to differentiate between SELECT and INSERT queries. The SELECT queries, associated with the GET endpoint, utilize cursor.fetchall() to retrieve data. Conversely, the INSERT queries, linked to the POST endpoint, employ connection.commit() to finalize the data insertion.
 
 **Development of GET endpoint**
 
@@ -117,38 +92,7 @@ The part that follows this symbol contains the query parameters we defined withi
 *   `&` separates multiple query parameters.
 *   `=` links the key and the value in each parameter pair.
 
-Example: [http://127.0.0.1:5000/getData?start\_date=2023-02-12&end\_date=2023-03-24](http://127.0.0.1:5000/?start_date=2023-02-12&end_date=2023-03-24)
-
-```py
-from flask import Flask, jsonify, request
-from dbconnection import executequery
-
-app = Flask(__name)
-
-
-@app.route('/getData')
-def get_data_sales():
-    # Retrieve the data from a range of dates
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
-
-    # Checks if both dates are accessible
-    if not start_date or not end_date:
-        return jsonify({'error': 'start_date and end_date must be provided'}), 400
-
-    # SQL query for selected dates within a given range
-    sql_query = "SELECT * FROM Sales WHERE transaction_date BETWEEN %s AND %s"
-    data = execute_query(sql_query, (start_date, end_date))
-
-    if data:
-        return jsonify(data)
-    else:
-        return jsonify({'error': 'No data found'})
-
-
-if __name == '__main':
-    app.run()
-```
+Example: http://127.0.0.1:5000/getData?start\_date=2023-02-12&end\_date=2023-03-24
 
 Note that the GET request executes the 'get\_data\_sales' function, where the function connects to MySQL through another function, `execute_query`, fetching data from a table and returning
 it as the requested outputs in the required form.
@@ -158,33 +102,3 @@ it as the requested outputs in the required form.
 We will enhance the above code to print the required outputs—JSON Dictionary, List, and Pandas DataFrame—based on the modifications made. The URL provided by the Flask application will reflect these data transformations.
 
 Since the current implementation integrates all changes on a single page, it appears somewhat cluttered. To improve code clarity and maintainability, a future modification could introduce the &format parameter in the URL. This addition would allow users to specify their preferred output format, making the application more flexible and user-friendly.
-
-```py
-def get_data_sales():
-    # Retrieve the data from a range of dates
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
-
-    # Checks if both dates are accessible
-    if not start_date or not end_date:
-        return jsonify({'error': 'start_date and end_date must be provided'}), 400
-
-    # SQL query for selected dates within a given range
-    sql_query = "SELECT * FROM Sales WHERE transaction_date BETWEEN %s AND %s"
-    data = execute_query(sql_query, (start_date, end_date))
-
-    if not data:
-        return jsonify({'error': 'No data found'})
-
-    # Converting data to different formats
-    pandas_df = pd.DataFrame(data)
-
-    # Responding with multiple formats
-    respond = {
-        'JSON Dictionary': data,
-        'list': [list(item.values()) for item in data],
-        'Pandas Data Frame': pandas_df.to_json(orient='records')
-    }
-
-    return jsonify(respond)
-```
