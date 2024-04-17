@@ -24,7 +24,7 @@ The next step is to convert the strings into their acceptable forms; for example
 
 **Converting total_sales from VARCHAR(15) to DECIMAL(10,2)**
 
-To temporarily disable safe mode for proper data casting in MySQL Workbench 8.0 CE, you can set the SQL_SAFE_UPDATES variable to 0. This allows you to perform the necessary data manipulations without the restrictions of safe mode. Once you've finished these operations, be sure to re-enable safe mode by setting SQL_SAFE_UPDATES back to 1. This ensures the database's integrity is maintained by preventing unintended data modifications.
+To temporarily disable safe mode for proper data casting in MySQL Workbench 8.0 CE, I set the SQL_SAFE_UPDATES variable to 0. This allows me to perform the necessary data manipulations without the restrictions of safe mode. Be sure to re-enable safe mode by setting SQL_SAFE_UPDATES back to 1 after conversion. This ensures the database's integrity is maintained by preventing unintended data modifications.
 
 ```sql
 -- Creating a temporary column to store numeric values
