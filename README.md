@@ -82,20 +82,48 @@ References: https://pynative.com/python-mysql-database-connection/
 
 In addition to the reference material used to establish the database connection, we incorporated an 'if' statement to differentiate between SELECT and INSERT queries. The SELECT queries, associated with the GET endpoint, utilize cursor.fetchall() to retrieve data. Conversely, the INSERT queries, linked to the POST endpoint, employ connection.commit() to finalize the data insertion.
 
+```py
+if query.strip().upper().startswith('INSERT'):
+    connection.commit()
+    return {'success': True, 'message': 'Data was successfully written in'}
+elif query.strip().upper().startswith('SELECT'):
+    result = cursor.fetchall()
+    return result
+else:
+    return {'success': False, 'message': 'Query type not supported'}
+```
+
+**Development of the function sales:**
+
+Within `app.py`, the `sales()` function supports both `GET` and `POST` methods. This function utilizes `execute_query` to connect to the database and execute SQL commands. For the `GET` method, it executes the query `SELECT * FROM Sales WHERE transaction_date BETWEEN %s AND %s`, while for the `POST` method, it uses `INSERT INTO Sales (id, store_code, total_sales, transaction_date) VALUES (%s, %s, %s, %s)`.
+
+Lets further dive into the development of GET and POST.
+
 **Development of GET endpoint**
 
-The following code is a GET endpoint that creates an instance of the Flask class. This instance becomes the WSGI application, accessible at [http://127.0.0.1:5000/getData](http://127.0.0.1:5000/). 
-Here, the parameters are passed through the URL, which is common for HTTP GET requests. Using the locally default URL, we pass the query parameters by using the symbol '?'. 
-The part that follows this symbol contains the query parameters we defined within our GET endpoint: `start_date = request.args.get('start_date')` and `end_date = request.args.get('end_date')`. By using `request.args.get`, we extract the values from the query string.
+A GET endpoint is created as an instance of the Flask class, which then serves as the WSGI application. It is accessible at http://127.0.0.1:5000/sales. Parameters can be passed through the URL or included in the HTTP GET request.
 
-*   `?` introduces the query string.
-*   `&` separates multiple query parameters.
-*   `=` links the key and the value in each parameter pair.
+**URL Parameters**
 
-Example: http://127.0.0.1:5000/getData?start\_date=2023-02-12&end\_date=2023-03-24
+To pass parameters through a URL, we append them to the query string, which begins with the '?' symbol. For example, in our GET endpoint, parameters are passed using the URL http://127.0.0.1:5000/sales?start_date=2023-02-12&end_date=2023-02-12. In this URL, `start_date` and `end_date` are retrieved using `request.args.get('start_date')` and `request.args.get('end_date')`, respectively. This method allows us to extract values directly from the query string.
 
-Note that the GET request executes the 'get\_data\_sales' function, where the function connects to MySQL through another function, `execute_query`, fetching data from a table and returning
-it as the requested outputs in the required form.
+Here’s a breakdown of the URL structure:
+
+*   The `?` marks the beginning of the query string.
+*   The `&` symbol separates multiple parameters.
+*   The `=` connects each parameter key with its value.
+
+The GET request triggers the `sales` function, which connects to a MySQL database via the `execute_query` function. This function retrieves data from the Sales table and returns it in the format requested by the user.
+
+**HTTP Request**
+
+In the project, there is a `.http` file that allows us to initiate a GET request directly. To do this, simply click the '+' button and enter the details of your GET request.
+
+```http
+GET http://127.0.0.1:5000/sales?start_date=2023-02-12&end_date=2023-02-12
+Accept: application/json
+```
+
 
 **GET endpoint output: JSON Dictionary, List, and Pandas Data Frame**
 
