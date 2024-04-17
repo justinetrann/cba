@@ -5,6 +5,9 @@ from db_connection import execute_query
 app = Flask(__name__)
 
 
+# Use to retrieve data (GET) and insert data (POST) in sales
+# GET: start_date end_date
+# POST: id, store_code, total_sales, transaction_date
 @app.route('/sales', methods=['GET', 'POST'])
 def sales():
     if request.method == 'GET':
@@ -51,6 +54,8 @@ def sales():
             )
             response = execute_query(sql_insert_query, (id_sales, store_id, total_sales, date))
 
+            # Response message indicating successful write to db
+            # Shows new row was written to database, id (key)
             if response.get('success', False):
                 sql_select_query = "SELECT * FROM Sales WHERE id = %s"
                 select_response = execute_query(sql_select_query, (id_sales,))

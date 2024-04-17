@@ -3,8 +3,10 @@ from mysql.connector import Error
 
 
 # Connects to MySQL db 'Store_Data' executes query and returns result
-# Parameters: query (str): The SQL query to execute
-# Returns: dict list containing results, http://127.0.0.1:5000/data
+# Parameters: query (str): The SQL query to execute, params based on GET n POST
+# GET: start_date end_date
+# POST: id, store_code, total_sales, transaction_date
+# Returns: dict list containing results, http://127.0.0.1:5000/sales
 def execute_query(query, params=None):
     # connecting to local db Store_Data Function
     connection = None
@@ -24,11 +26,14 @@ def execute_query(query, params=None):
         cursor = connection.cursor(dictionary=True)
 
         # Checks if query is an INSERT operation
+        # Currently used for POST
         cursor.execute(query, params)
         if query.strip().upper().startswith('INSERT'):
             connection.commit()
             return {'success': True, 'message': 'Data was successfully written in'}
-        elif query.strip().upper().startswith('SELECT'):  # Execute the query and fetch all results
+        # Execute the query and fetch all results
+        # Currently used for GET
+        elif query.strip().upper().startswith('SELECT'):
             result = cursor.fetchall()
             return result
         else:
