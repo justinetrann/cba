@@ -57,6 +57,7 @@ def sales():
             # Response message indicating successful write to db
             # Shows new row was written to database, id (key)
             if response.get('success', False):
+                # Verifying the inserted data by retrieving it back
                 sql_select_query = "SELECT * FROM Sales WHERE id = %s"
                 select_response = execute_query(sql_select_query, (id_sales,))
 
@@ -64,7 +65,7 @@ def sales():
                     return jsonify({
                         'success': True,
                         'message': 'Data inserted and verified successfully',
-                        'id': id_sales
+                        'data': select_response
                     }), 200
                 else:
                     return jsonify({'success': False, 'message': 'Data was inserted but could not be verified'}), 500
@@ -78,4 +79,4 @@ def sales():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
