@@ -134,7 +134,7 @@ respond = {
 }
 ```
 
-**Development of POST**
+**Development of POST endpoint**
 
 Using the `.http` file, we can add a new row to the dataset in a MySQL database. Below is an example of an insertion:
 ```http
